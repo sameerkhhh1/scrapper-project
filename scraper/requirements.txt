@@ -3,3 +3,4 @@ trafilatura==1.12.2
 requests==2.32.3
 pymongo==4.9.2
 python-dotenv
+lxml_html_clean
