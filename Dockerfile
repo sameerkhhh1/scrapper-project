@@ -13,7 +13,8 @@ RUN npm install
 # Python dependencies
 WORKDIR /app
 COPY scraper/requirements.txt ./scraper/
-RUN pip3 install --break-system-packages -r scraper/requirements.txt
+# RUN pip3 install --break-system-packages -r scraper/requirements.txt
+RUN pip3 install -r scraper/requirements.txt
 
 # Copy complete project
 COPY . .
