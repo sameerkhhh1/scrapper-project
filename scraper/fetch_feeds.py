@@ -7,7 +7,7 @@ names/date-formats different hote hain - feedparser library zyadatar
 yeh mess khud handle kar leti hai, lekin phir bhi hum extra checks
 laga rahe hain taaki missing fields se crash na ho.
 """
-
+from typing import Optional
 import feedparser
 from datetime import datetime
 from time import mktime
@@ -15,7 +15,8 @@ from time import mktime
 from config import RSS_FEEDS
 
 
-def normalize_date(entry) -> str | None:
+# def normalize_date(entry) -> str | None:
+def normalize_date(entry) -> Optional[str]:
     """
     feedparser entries mein date `published_parsed` (a time.struct_time) ke
     form mein aati hai agar successfully parse ho jaye. Kabhi kabhi yeh
@@ -32,7 +33,8 @@ def normalize_date(entry) -> str | None:
         return None
 
 
-def normalize_entry(entry, source: str) -> dict | None:
+# def normalize_entry(entry, source: str) -> dict | None:
+def normalize_entry(entry, source: str) -> Optional[dict]:
     """
     Ek raw feedparser entry ko hamare internal schema mein convert karta hai:
     { source, title, summary, link, published_at }
