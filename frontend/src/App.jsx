@@ -22,6 +22,7 @@ import "./App.css";
 export default function App() {
   const [clusters, setClusters] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingCluster, setLoadingCluster] = useState(false);
   const [error, setError] = useState(null);
 
   const [selectedClusterId, setSelectedClusterId] = useState(null);
@@ -41,7 +42,9 @@ export default function App() {
       setActiveSources((prev) => (prev.length === 0 ? allSources : prev));
     } catch (err) {
       console.error(err);
-      setError("Timeline load nahi ho paayi. Backend chal raha hai check karo.");
+      setError(
+        "Failed to load timeline. Please check if the backend server is running.",
+      );
     } finally {
       setLoading(false);
     }
@@ -53,30 +56,37 @@ export default function App() {
 
   const handleSelectCluster = async (clusterId) => {
     setSelectedClusterId(clusterId);
+    setSelectedCluster(null);
+    setLoadingCluster(true);
+
     try {
       const detail = await fetchClusterDetail(clusterId);
       setSelectedCluster(detail);
-    } catch (err) {
-      console.error("Cluster detail fetch failed:", err);
+    } finally {
+      setLoadingCluster(false);
     }
   };
 
   const handleToggleSource = (source) => {
     setActiveSources((prev) =>
-      prev.includes(source) ? prev.filter((s) => s !== source) : [...prev, source]
+      prev.includes(source)
+        ? prev.filter((s) => s !== source)
+        : [...prev, source],
     );
   };
 
   // Sirf woh clusters dikhao jinke sources mein se kam se kam ek active hai
   const filteredClusters = useMemo(
     () =>
-      clusters.filter((c) => (c.sources || []).some((s) => activeSources.includes(s))),
-    [clusters, activeSources]
+      clusters.filter((c) =>
+        (c.sources || []).some((s) => activeSources.includes(s)),
+      ),
+    [clusters, activeSources],
   );
 
   const allSources = useMemo(
     () => [...new Set(clusters.flatMap((c) => c.sources || []))],
-    [clusters]
+    [clusters],
   );
 
   return (
@@ -93,17 +103,26 @@ export default function App() {
         onToggle={handleToggleSource}
       />
 
-      {loading && <p className="status-message">Loading timeline...</p>}
+      {loading && (
+        <div className="loading">
+          <div className="spinner"></div>
+          <p>Loading timeline...</p>
+        </div>
+      )}
       {error && <p className="status-message error">{error}</p>}
 
       {!loading && !error && (
-        <Timeline clusters={filteredClusters} onSelectCluster={handleSelectCluster} />
+        <Timeline
+          clusters={filteredClusters}
+          onSelectCluster={handleSelectCluster}
+        />
       )}
 
       {selectedClusterId && (
         <div className="detail-overlay">
           <ClusterDetail
             cluster={selectedCluster}
+            loading={loadingCluster}
             onClose={() => {
               setSelectedClusterId(null);
               setSelectedCluster(null);

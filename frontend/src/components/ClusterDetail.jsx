@@ -6,7 +6,16 @@
  * ka link.
  */
 
-export default function ClusterDetail({ cluster, onClose }) {
+export default function ClusterDetail({ cluster, loading, onClose }) {
+  if (loading) {
+    return (
+      <div className="cluster-detail loading">
+        <div className="spinner"></div>
+        <p>Loading articles...</p>
+      </div>
+    );
+  }
+
   if (!cluster) return null;
 
   return (
@@ -34,7 +43,9 @@ export default function ClusterDetail({ cluster, onClose }) {
                   : "Date unknown"}
               </span>
             </div>
-            {article.summary && <p className="article-summary">{article.summary}</p>}
+            {article.summary && (
+              <p className="article-summary">{article.summary}</p>
+            )}
           </li>
         ))}
       </ul>

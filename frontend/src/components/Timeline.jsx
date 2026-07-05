@@ -28,7 +28,9 @@ function toEpoch(isoString) {
 
 export default function Timeline({ clusters, onSelectCluster }) {
   if (!clusters || clusters.length === 0) {
-    return <p className="empty-state">Koi cluster nahi mila. "Refresh data" try karo.</p>;
+    return (
+      <p className="empty-state">No clusters found. Try refreshing the data.</p>
+    );
   }
 
   const maxIntensity = Math.max(...clusters.map((c) => c.intensity || 1));
@@ -57,7 +59,10 @@ export default function Timeline({ clusters, onSelectCluster }) {
 
   return (
     <div className="timeline-wrapper">
-      <ResponsiveContainer width="100%" height={Math.max(chartData.length * 50, 200)}>
+      <ResponsiveContainer
+        width="100%"
+        height={Math.max(chartData.length * 50, 200)}
+      >
         <BarChart
           data={chartData}
           layout="vertical"
@@ -74,7 +79,10 @@ export default function Timeline({ clusters, onSelectCluster }) {
             labelFormatter={(label) => label}
             formatter={(value, name, props) => {
               if (name === "duration") {
-                return [`${props.payload.articleCount} articles`, "Article count"];
+                return [
+                  `${props.payload.articleCount} articles`,
+                  "Article count",
+                ];
               }
               return [value, name];
             }}
@@ -94,7 +102,9 @@ export default function Timeline({ clusters, onSelectCluster }) {
               // "visual cluster sizing" ka simple version, chart height fixed
               // rakh ke color-intensity se size communicate kar rahe hain
               const opacity = 0.4 + 0.6 * (entry.intensity / maxIntensity);
-              return <Cell key={index} fill={`rgba(37, 99, 235, ${opacity})`} />;
+              return (
+                <Cell key={index} fill={`rgba(37, 99, 235, ${opacity})`} />
+              );
             })}
           </Bar>
         </BarChart>

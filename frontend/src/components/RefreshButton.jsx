@@ -7,11 +7,12 @@
  *   3. Jab status "done" ho jaaye, parent ko batata hai (onComplete)
  *      taaki woh timeline refresh kar sake
  */
-
+import { useEffect } from "react";
 import { useState, useRef } from "react";
 import { triggerIngest, fetchIngestStatus } from "../services/api";
 
-const POLL_INTERVAL_MS = 3000;
+const POLL_INTERVAL_MS = 5000;
+const MAX_POLL_COUNT = 20;
 
 export default function RefreshButton({ onComplete }) {
   const [status, setStatus] = useState("idle"); // idle | running | done | failed
@@ -28,8 +29,17 @@ export default function RefreshButton({ onComplete }) {
     setStatus("running");
     try {
       const { jobId } = await triggerIngest();
+      let pollCount = 0;
 
       pollRef.current = setInterval(async () => {
+        pollCount++;
+
+        if (pollCount >= MAX_POLL_COUNT) {
+          stopPolling();
+          setStatus("failed");
+          console.error("Polling timeout");
+          return;
+        }
         try {
           const job = await fetchIngestStatus(jobId);
 
@@ -56,12 +66,14 @@ export default function RefreshButton({ onComplete }) {
   };
 
   const labels = {
-    idle: "Refresh data",
-    running: "Refreshing... (scraping in progress)",
-    done: "Refreshed ✓",
-    failed: "Failed - try again",
+    idle: "Refresh Data",
+    running: "Refreshing...",
+    done: "Updated Successfully",
+    failed: "Refresh Failed",
   };
-
+  useEffect(() => {
+    return () => stopPolling();
+  }, []);
   return (
     <button
       className={`refresh-btn refresh-btn--${status}`}
